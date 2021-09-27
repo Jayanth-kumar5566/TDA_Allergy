@@ -2,6 +2,8 @@ import numpy
 import scipy
 import matplotlib.pyplot as plt
 from sklearn import linear_model
+import pandas
+import seaborn as sns
 
 #----------FLAT Reconstruction---------------
 def drop(A,ind):
@@ -68,7 +70,54 @@ def project(A,v):
 #======================================================
 
 #----Normal Data set creation----------------------
-A=numpy.random.random((10,10))*100 #Normal people
+
+#==================Healthy data=============
+df=pandas.read_csv("./../../OD_Healthy 50 years and above (126 allergens).csv",index_col=0)
+df=df.loc[:,df.isna().sum()==0]
+b_df=pandas.read_csv("./../../OD_Bronchiectasis.csv",index_col=0)
+b_df=b_df.loc[:,b_df.isna().sum()==0]
+
+cols=set(df.columns).intersection(set(b_df.columns))
+
+df=df.loc[:,cols]
+b_df=b_df.loc[:,cols]
+#=================Correlation matrix===========
+'''
+#They are correlated (both positively and negatively) - can do KNN
+
+corrM = df.corr()
+fig, ax = plt.subplots(figsize=(20,20))
+sns.heatmap(
+    corrM, 
+    vmin=-1, vmax=1, center=0,
+    cmap=sns.diverging_palette(20, 220, n=500),
+    square=True, ax=ax
+)
+ax.set_xticklabels(
+    ax.get_xticklabels(),
+    rotation=45,
+    horizontalalignment='right'
+);
+plt.savefig("correlation.png",dpi=300)
+'''
+
+'''
+#====Missing values imputation====
+from sklearn.impute import KNNImputer
+
+imputer = KNNImputer(n_neighbors=5, weights="uniform")
+A=imputer.fit_transform(df)
+'''
+
+A=df.values
+
+
+#Remove missing values
+
+A[A<0]=0 #make negative values zero
+
+A=A.transpose()
+
 #--------------------------------------------
 dim=A.shape
 r=dim[1]
@@ -81,16 +130,23 @@ N=numpy.stack(N,axis=1)
 #Take the value of l such that wold spikes up
 #note l is the dimension not the index
 U, s, V = numpy.linalg.svd(N, full_matrices=False)
-for i in range(1,r):
-    plt.scatter(i,wold(s,i,r,gamma))
+
+wold_score=[wold(s,i,r,gamma) for i in range(1,r)]
+plt.plot(range(1,r),wold_score,'o-')
 plt.show()
 #choose l based on the plot (the x-axis value)
-l=int(raw_input("Give in the value of l "))
+l=int(input("Give in the value of l "))
 N_new=N_hat(U,s,V,l)
 N_b=basis(N_new,l)
 
 #================Disease Data Creation==============
-B=numpy.random.random((10,10))*100 #Diseased people
+
+
+B=b_df.values
+#Remove missing values
+B[B<0]=0 #make negative values zero
+B=B.transpose()
+
 (p,q)=B.shape
 
 N_c=[]
