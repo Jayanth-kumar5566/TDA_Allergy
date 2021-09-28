@@ -74,13 +74,22 @@ def project(A,v):
 #==================Healthy data=============
 df=pandas.read_csv("./../../OD_Healthy 50 years and above (126 allergens).csv",index_col=0)
 df=df.loc[:,df.isna().sum()==0]
+
 b_df=pandas.read_csv("./../../OD_Bronchiectasis.csv",index_col=0)
 b_df=b_df.loc[:,b_df.isna().sum()==0]
 
-cols=set(df.columns).intersection(set(b_df.columns))
+
+c_df=pandas.read_csv("./../../OD_COPD.csv",index_col=0)
+c_df=c_df.loc[:,c_df.isna().sum()==0]
+
+cols_tmp=set(df.columns).intersection(set(b_df.columns))
+
+cols=set(c_df).intersection(cols_tmp)
 
 df=df.loc[:,cols]
 b_df=b_df.loc[:,cols]
+c_df=c_df.loc[:,cols]
+
 #=================Correlation matrix===========
 '''
 #They are correlated (both positively and negatively) - can do KNN
@@ -139,8 +148,7 @@ l=int(input("Give in the value of l "))
 N_new=N_hat(U,s,V,l)
 N_b=basis(N_new,l)
 
-#================Disease Data Creation==============
-
+#================Bronchieactasis Disease Data Creation==============
 
 B=b_df.values
 #Remove missing values
@@ -160,4 +168,28 @@ N_c=numpy.stack(N_c,axis=1)
 D_c=numpy.stack(D_c,axis=1)
 
 f_df=pandas.DataFrame(D_c,index=b_df.columns,columns=b_df.index).transpose()
-f_df.to_csv("bronchieactasis_data.csv")
+f_df.to_csv("./../Results/bronchieactasis_data.csv")
+
+del B,f_df,N_c,D_c
+#==============COPD Disease Data Creation============
+
+B=c_df.values
+#Remove missing values
+B[B<0]=0 #make negative values zero
+B=B.transpose()
+
+(p,q)=B.shape
+
+N_c=[]
+D_c=[]
+for i in range(q):
+    p,B_new=drop(B,i)
+    (V_n,V_np)=project(N_b,p)
+    N_c.append(V_n)
+    D_c.append(V_np)
+N_c=numpy.stack(N_c,axis=1)
+D_c=numpy.stack(D_c,axis=1)
+
+f_df=pandas.DataFrame(D_c,index=c_df.columns,columns=c_df.index).transpose()
+f_df.to_csv("./../Results/COPD.csv")
+

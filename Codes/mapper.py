@@ -4,7 +4,7 @@ import pandas
 import sklearn
 import numpy
 
-data=pandas.read_csv("bronchieactasis_data.csv",index_col=0)
+data=pandas.read_csv("./../Results/bronchieactasis_data.csv",index_col=0)
 allergens=data.columns.values
 
 #Metadata
@@ -51,5 +51,5 @@ colorscale_default = [
 
 
 # Visualize it
-mapper.visualize(graph, path_html="data_keplermapper_output.html",   color_values=labels.values,color_function_name=[i for i in labels.columns],title="",custom_tooltips=tooltip_s,colorscale=colorscale_default,
+mapper.visualize(graph, path_html="./../Results/data_keplermapper_output.html",   color_values=labels.values,color_function_name=[i for i in labels.columns],title="",custom_tooltips=tooltip_s,colorscale=colorscale_default,
 custom_meta={"Metadata":"you can add"},X=data,X_names=allergens,lens=projected_data,lens_names=["L2 norm"])
