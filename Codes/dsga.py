@@ -158,3 +158,6 @@ for i in range(q):
     D_c.append(V_np)
 N_c=numpy.stack(N_c,axis=1)
 D_c=numpy.stack(D_c,axis=1)
+
+f_df=pandas.DataFrame(D_c,index=b_df.columns,columns=b_df.index).transpose()
+f_df.to_csv("bronchieactasis_data.csv")
