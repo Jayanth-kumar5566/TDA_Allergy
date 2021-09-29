@@ -142,7 +142,9 @@ U, s, V = numpy.linalg.svd(N, full_matrices=False)
 
 wold_score=[wold(s,i,r,gamma) for i in range(1,r)]
 plt.plot(range(1,r),wold_score,'o-')
-plt.show()
+plt.ylabel("Wold Score")
+plt.xlabel("PCA number of components")
+plt.savefig("PCA.png",dpi=300)
 #choose l based on the plot (the x-axis value)
 l=int(input("Give in the value of l "))
 N_new=N_hat(U,s,V,l)

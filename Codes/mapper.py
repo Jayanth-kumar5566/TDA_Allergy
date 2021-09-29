@@ -4,16 +4,28 @@ import pandas
 import sklearn
 import numpy
 
-data=pandas.read_csv("./../Results/bronchieactasis_data.csv",index_col=0)
+
+#========== Define Data and Labels here==========
+b_data=pandas.read_csv("./../Results/bronchieactasis_data.csv",index_col=0)
+
+c_data=pandas.read_csv("./../Results/COPD.csv",index_col=0)
+
+#=======Data creation merging=======
+data=pandas.concat([b_data,c_data])
+
 allergens=data.columns.values
 
 #Metadata
+labels=([0]*b_data.shape[0])+([1]*c_data.shape[0])
+
+data=data.values
+'''
 labels=pandas.read_csv("./../../Bronchiectasis_Clinical_Metadata_V3.4.csv",index_col=0)
 
 labels=labels[["BCOS","Bronchiectasis_Disease_Severity"]]
 labels=labels.replace({"No":0,"Yes":1,"Mild":0,"Moderate":1,"Severe":2})
 data=data.loc[labels.index,:].values
-
+'''
 tooltip_s = numpy.array(
     labels.index
 )
@@ -51,5 +63,10 @@ colorscale_default = [
 
 
 # Visualize it
+mapper.visualize(graph, path_html="./../Results/data_keplermapper_output.html",   color_values=labels,color_function_name=["Bronchieactasis or Copd"],title="",colorscale=colorscale_default,
+custom_meta={"Metadata":"you can add"},X=data,X_names=allergens,lens=projected_data,lens_names=["L2 norm"])
+
+'''
 mapper.visualize(graph, path_html="./../Results/data_keplermapper_output.html",   color_values=labels.values,color_function_name=[i for i in labels.columns],title="",custom_tooltips=tooltip_s,colorscale=colorscale_default,
 custom_meta={"Metadata":"you can add"},X=data,X_names=allergens,lens=projected_data,lens_names=["L2 norm"])
+'''
