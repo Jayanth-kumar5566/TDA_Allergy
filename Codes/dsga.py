@@ -7,7 +7,7 @@ import seaborn as sns
 
 #----------FLAT Reconstruction---------------
 def drop(A,ind):
-    ''' A is a numpy matrix 
+    ''' A is a numpy matrix
         ind is the index of the column to be removed'''
     p=A[:,ind]
     A_1=A[:,0:ind]
@@ -28,11 +28,12 @@ def flat(A,ind):
 #chosing appropriate dimension l
 
 def wold(s,l,r,gamma):
+   #Not defined for l = total dimension
    ''' s is the matrix containing singular values in descending order
    l is the dimension we wish to reduce to not indices
    r is the orginal dimension not indices
    gamma is the number of rows or genes'''
-   c=(gamma-l-1)*(r-l)/(gamma+r-2*l)
+   c=((gamma-l-1)*(r-l))/(gamma+r-(2*l))
    l=l-1 #makes it as index
    r=r-1 #makes it as index
    w_1=(s[l])**2/numpy.sum(numpy.square(s[l+1:]))
@@ -97,7 +98,7 @@ c_df=c_df.loc[:,cols]
 corrM = df.corr()
 fig, ax = plt.subplots(figsize=(20,20))
 sns.heatmap(
-    corrM, 
+    corrM,
     vmin=-1, vmax=1, center=0,
     cmap=sns.diverging_palette(20, 220, n=500),
     square=True, ax=ax
@@ -139,6 +140,22 @@ N=numpy.stack(N,axis=1)
 #Take the value of l such that wold spikes up
 #note l is the dimension not the index
 U, s, V = numpy.linalg.svd(N, full_matrices=False)
+
+#Plotting Singular values after SVD decomposition for more insight into the PCA 
+plt.plot(s,'-o')
+plt.xlabel("Index")
+plt.ylabel("Singular values")
+plt.savefig("singular_values_patients.png",dpi=300)
+plt.clf()
+
+#Plotting a zoomed in-version
+plt.plot(s[25:],'-o')
+plt.xlabel("Index")
+plt.ylabel("Singular values")
+plt.savefig("singular_values_patients_zoomed.png",dpi=300)
+plt.clf()
+
+
 
 wold_score=[wold(s,i,r,gamma) for i in range(1,r)]
 plt.plot(range(1,r),wold_score,'o-')
