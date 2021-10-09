@@ -3,7 +3,7 @@ import kmapper as km
 import pandas
 import sklearn
 import numpy
-
+import matplotlib.pyplot as plt
 
 #========== Define Data and Labels here==========
 b_data=pandas.read_csv("./../Results/bronchieactasis_data.csv",index_col=0)
@@ -39,9 +39,13 @@ tooltip_s = numpy.array(
 mapper = km.KeplerMapper(verbose=1)
 
 # Fit to and transform the data
-projected_data = mapper.fit_transform(data, projection="l2norm") # X-Y axis
+#projected_data = mapper.fit_transform(data, projection="l2norm") # X-Y axis
 
 #Can define custom lenses here
+projected_data = numpy.linalg.norm(data,ord=2,axis=1,keepdims=True)
+plt.hist(projected_data,bins=100)
+plt.savefig("./../Results/lens_hist.png",dpi=300)
+
 
 
 # Create dictionary called 'graph' with nodes, edges and meta-information
@@ -75,3 +79,19 @@ custom_meta={"Metadata":"you can add"},X=data,X_names=allergens,lens=projected_d
 mapper.visualize(graph, path_html="./../Results/data_keplermapper_output.html",   color_values=labels.values,color_function_name=[i for i in labels.columns],title="",custom_tooltips=tooltip_s,colorscale=colorscale_default,
 custom_meta={"Metadata":"you can add"},X=data,X_names=allergens,lens=projected_data,lens_names=["L2 norm"])
 '''
+
+#=====Parse graph object to original data to map back clusters=====
+cluster=pandas.Series(graph['nodes'])
+
+dict_cluster={}
+for i in range(len(labels.index)):
+    dict_cluster[i]=labels.index[i]
+
+def replace_dict(x,dict_cluster=dict_cluster):
+    y=[dict_cluster[i] for i in x]
+    return(y)
+
+cluster=cluster.apply(replace_dict)
+
+#Convert to a networkx graph as 
+#km.adapter.to_nx(graph)
